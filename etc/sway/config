@@ -23,8 +23,10 @@ set $WOBSOCK $XDG_RUNTIME_DIR/wob.sock
 set $browser brave
 
 input type:keyboard {
-    # Dos layouts: ingles (us) y espanol latinoamericano (latam).
+    # Dos layouts: us international (dead keys para acentos/ñ) y latam.
     xkb_layout us,latam
+    # intl = dead keys en us: ' + a = á, ~ + n = ñ, etc. Sin variante en latam.
+    xkb_variant intl,
     # Alterna entre layouts con Alt+Shift.
     xkb_options grp:alt_shift_toggle
 }

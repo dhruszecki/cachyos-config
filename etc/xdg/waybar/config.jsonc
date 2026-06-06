@@ -1,0 +1,103 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": ["custom/user", "sway/language", "bluetooth", "pulseaudio", "network", "cpu", "memory", "temperature", "tray", "clock"],
+
+    "sway/language": {
+        "format": " {short}",
+        "on-click": "swaymsg input type:keyboard xkb_switch_layout next",
+        "tooltip-format": "Layout: {long}"
+    },
+
+    "bluetooth": {
+        "format": " {status}",
+        "format-on": "",
+        "format-off": "",
+        "format-disabled": "",
+        "format-connected": " {device_alias}",
+        "format-connected-battery": " {device_alias} {device_battery_percentage}%",
+        "tooltip-format": "{controller_alias}\n{num_connections} conectado(s)",
+        "tooltip-format-connected": "{controller_alias}\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_battery_percentage}%",
+        "on-click": "blueman-manager 2>/dev/null || foot -e bluetoothctl",
+        "on-click-right": "rfkill toggle bluetooth"
+    },
+
+    "sway/workspaces": {
+        "disable-scroll": false,
+        "all-outputs": false,
+        "format": "{name}"
+    },
+
+    "sway/mode": {
+        "format": "<span style=\"italic\"> {}</span>"
+    },
+
+    "sway/window": {
+        "max-length": 60,
+        "tooltip": false
+    },
+
+    "tray": {
+        "icon-size": 18,
+        "spacing": 8
+    },
+
+    "clock": {
+        "format": " {:%H:%M}",
+        "format-alt": " {:%a %d %b %Y}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>"
+    },
+
+    "cpu": {
+        "format": " {usage}%",
+        "interval": 2,
+        "tooltip": false
+    },
+
+    "memory": {
+        "format": " {percentage}%",
+        "interval": 5,
+        "tooltip-format": "{used:0.1f}G / {total:0.1f}G"
+    },
+
+    "temperature": {
+        "critical-threshold": 82,
+        "format": " {temperatureC}°C",
+        "format-critical": " {temperatureC}°C",
+        "interval": 5
+    },
+
+    "network": {
+        "format-wifi": "  {essid} ({signalStrength}%)",
+        "format-ethernet": " {ifname}",
+        "format-disconnected": "睊 sin red",
+        "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+        "on-click": "foot -e nmtui"
+    },
+
+    "custom/user": {
+        "exec": "whoami",
+        "interval": "once",
+        "format": " {}",
+        "on-click": "sway-session-switch"
+    },
+
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": " muted",
+        "format-icons": {
+            "headphone": "",
+            "default": ["", "", ""]
+        },
+        "scroll-step": 5,
+        "on-click": "pavucontrol",
+        "on-click-right": "pamixer -t"
+    }
+}

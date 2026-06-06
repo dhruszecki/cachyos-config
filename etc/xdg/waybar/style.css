@@ -1,0 +1,65 @@
+* {
+    font-family: "MesloLGS Nerd Font", "Font Awesome 6 Free", sans-serif;
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: rgba(30, 30, 46, 0.92);
+    color: #cdd6f4;
+    transition-property: background-color;
+    transition-duration: 0.3s;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    background-color: transparent;
+    color: #cdd6f4;
+    border-bottom: 2px solid transparent;
+}
+
+#workspaces button.focused {
+    background-color: #45475a;
+    border-bottom: 2px solid #89b4fa;
+}
+
+#workspaces button.urgent {
+    background-color: #f38ba8;
+    color: #1e1e2e;
+}
+
+#mode {
+    background-color: #f9e2af;
+    color: #1e1e2e;
+    padding: 0 8px;
+}
+
+#clock,
+#cpu,
+#memory,
+#temperature,
+#network,
+#pulseaudio,
+#bluetooth,
+#language,
+#tray {
+    padding: 0 10px;
+    margin: 2px 2px;
+}
+
+#clock        { color: #89b4fa; }
+#cpu          { color: #a6e3a1; }
+#memory       { color: #f9e2af; }
+#temperature  { color: #fab387; }
+#temperature.critical { color: #f38ba8; }
+#network      { color: #94e2d5; }
+#pulseaudio   { color: #cba6f7; }
+#pulseaudio.muted { color: #6c7086; }
+#bluetooth    { color: #89b4fa; }
+#bluetooth.disabled, #bluetooth.off { color: #6c7086; }
+#bluetooth.connected { color: #a6e3a1; }
+#language     { color: #f5c2e7; }
+
+#window {
+    color: #bac2de;
+}

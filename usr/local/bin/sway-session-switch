@@ -1,0 +1,43 @@
+#!/bin/bash
+current=$(loginctl show-session self -p Id 2>/dev/null | cut -d= -f2)
+
+others=""
+while IFS= read -r line; do
+    sid=$(awk '{print $1}' <<< "$line")
+    [ "$sid" = "$current" ] && continue
+
+    state=$(loginctl show-session "$sid" -p State 2>/dev/null | cut -d= -f2)
+    [[ "$state" == "closing" || "$state" == "dead" ]] && continue
+
+    tty=$(loginctl show-session "$sid" -p TTY 2>/dev/null | cut -d= -f2)
+    [ "$tty" = "" ] && continue  # sesiones manager sin VT
+
+    type=$(loginctl show-session "$sid" -p Type 2>/dev/null | cut -d= -f2)
+    desktop=$(loginctl show-session "$sid" -p Desktop 2>/dev/null | cut -d= -f2 | cut -d';' -f1)
+    user=$(awk '{print $3}' <<< "$line")
+
+    case "$type" in
+        wayland) tipo="${desktop:-wayland}" ;;
+        x11)     tipo="x11${desktop:+ · $desktop}" ;;
+        tty)     tipo="terminal" ;;
+        *)       tipo="${type:-desconocido}" ;;
+    esac
+
+    others+="${sid}  ${user}  (${tty})  [${tipo}]"$'\n'
+done < <(loginctl list-sessions --no-legend)
+
+options="${others}[Nueva sesión — abrir greeter]"
+
+choice=$(printf '%s' "$options" | fuzzel --dmenu --prompt="Cambiar sesión > ") || exit 0
+[ -z "$choice" ] && exit 0
+
+swaylock -f -c 000000
+
+if [[ "$choice" == *"greeter"* ]]; then
+    busctl --system call org.freedesktop.DisplayManager \
+        /org/freedesktop/DisplayManager/Seat0 \
+        org.freedesktop.DisplayManager.Seat SwitchToGreeter
+else
+    session_id=$(awk '{print $1}' <<< "$choice")
+    loginctl activate "$session_id"
+fi

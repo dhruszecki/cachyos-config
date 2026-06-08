@@ -1,0 +1,24 @@
+#!/bin/bash
+# cachyos-sync — actualiza la config compartida desde git y la re-aplica.
+#   - Code OSS está symlinkeado al repo, así que el `git pull` ya lo actualiza.
+#   - Las configs de sistema (sway, waybar) se re-copian via install.sh (sudo).
+set -e
+
+ok="\e[32m✔\e[0m"
+info="\e[34m→\e[0m"
+
+REPO="${CACHYOS_CONFIG_DIR:-/opt/cachyos-config}"
+
+if [ ! -d "$REPO/.git" ]; then
+    echo "No encuentro el repo en $REPO."
+    echo "Corré primero el bootstrap (sudo bash bootstrap.sh) o exportá CACHYOS_CONFIG_DIR."
+    exit 1
+fi
+
+echo -e "${info} Actualizando $REPO ..."
+git -C "$REPO" pull --ff-only
+
+echo -e "${info} Re-aplicando configs (system + tu usuario, requiere sudo)..."
+sudo "$REPO/install.sh"
+
+echo -e "${ok} Sincronizado."

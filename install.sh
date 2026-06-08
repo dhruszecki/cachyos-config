@@ -69,6 +69,8 @@ install_system etc/xdg/waybar/config.jsonc
 install_system etc/xdg/waybar/style.css
 install_system usr/local/bin/sway-session-switch
 chmod +x /usr/local/bin/sway-session-switch
+install_system usr/local/bin/cachyos-sync
+chmod +x /usr/local/bin/cachyos-sync
 
 # ── Archivos de usuario ───────────────────────────────────────────────────────
 # Copia un archivo de home/ al home del usuario y deja la propiedad correcta
@@ -83,21 +85,32 @@ install_user() {
     echo -e "${ok} ~/$rel"
 }
 
+# Symlinkea un archivo de home/ al home del usuario apuntando al repo.
+# Así un `git pull` en el repo actualiza la config al instante (sin reinstalar).
+link_user() {
+    local rel="$1"
+    local target="$REPO_DIR/home/$rel"
+    local dst="$USER_HOME/$rel"
+    sudo -u "$TARGET_USER" mkdir -p "$(dirname "$dst")"
+    sudo -u "$TARGET_USER" ln -sfn "$target" "$dst"
+    echo -e "${ok} ~/$rel -> $target"
+}
+
 echo -e "${info} Instalando configs de usuario para $TARGET_USER (${USER_HOME})..."
 
 # sway
 install_user .config/sway/show-keybindings.sh
 chmod +x "$USER_HOME/.config/sway/show-keybindings.sh"
 
-# Code OSS (Markdown / Marp)
-install_user ".config/Code - OSS/User/settings.json"
-install_user ".config/Code - OSS/User/keybindings.json"
-install_user ".config/Code - OSS/User/snippets/markdown.json"
+# Code OSS (Markdown / Marp) — symlinks al repo para sync vía git pull
+link_user ".config/Code - OSS/User/settings.json"
+link_user ".config/Code - OSS/User/keybindings.json"
+link_user ".config/Code - OSS/User/snippets/markdown.json"
 
 # Extensiones de Code OSS (se instalan en el perfil del usuario)
 echo -e "${info} Instalando extensiones de Code OSS..."
 for ext in marp-team.marp-vscode yzhang.markdown-all-in-one; do
-    if sudo -u "$TARGET_USER" code --install-extension "$ext" --force >/dev/null 2>&1; then
+    if sudo -u "$TARGET_USER" env HOME="$USER_HOME" code --install-extension "$ext" --force >/dev/null 2>&1; then
         echo -e "${ok} ext $ext"
     else
         echo -e "  (no se pudo instalar $ext automáticamente; instalala desde la UI)"

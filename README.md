@@ -12,7 +12,9 @@ cachyos-config/
 │       ├── config.jsonc             → /etc/xdg/waybar/config.jsonc
 │       └── style.css                → /etc/xdg/waybar/style.css
 ├── usr/local/bin/
-│   └── sway-session-switch          → /usr/local/bin/sway-session-switch
+│   ├── sway-session-switch          → /usr/local/bin/sway-session-switch
+│   └── cachyos-sync                 → /usr/local/bin/cachyos-sync
+├── bootstrap.sh                     (setup compartido /opt + grupo + /etc/skel)
 ├── home/.config/sway/
 │   └── show-keybindings.sh          → ~/.config/sway/show-keybindings.sh
 ├── home/.config/Code - OSS/User/
@@ -34,9 +36,42 @@ sudo ./install.sh
 
 El script instala los paquetes necesarios con `pacman` y copia los archivos a sus destinos.
 
-> **Multi-usuario:** las configs de `home/` se copian al home del usuario que ejecuta el instalador y quedan con su propiedad. Para que las tenga otro usuario (ej. `daro` y `daro-m`), cada uno corre `sudo ./install.sh` una vez. Lo mismo para usuarios nuevos.
->
-> **Sincronizar cambios:** `git pull && sudo ./install.sh` (vuelve a copiar las versiones actualizadas).
+> **Multi-usuario:** las configs de sistema (`etc/`, `usr/`) son globales. Las de `home/`: las de sway se copian; las de **Code OSS se symlinkean** al clon compartido del repo (ver abajo).
+
+### Setup compartido (multi-usuario + usuarios nuevos)
+
+Para compartir la config entre todos los usuarios de la máquina (y heredarla en usuarios nuevos), se usa un clon compartido en `/opt/cachyos-config` y el script `bootstrap.sh`:
+
+```bash
+git clone https://github.com/dhruszecki/cachyos-config.git
+cd cachyos-config
+sudo bash bootstrap.sh
+```
+
+`bootstrap.sh` (una sola vez por máquina):
+
+1. Crea el grupo `confshare` y agrega a los usuarios humanos existentes.
+2. Clona el repo en `/opt/cachyos-config` (legible por todos, escribible por el grupo, `git` compartido).
+3. Corre `install.sh` para cada usuario existente (paquetes + symlinks de Code OSS + extensiones).
+4. Deja symlinks de Code OSS en `/etc/skel/` → **los usuarios nuevos los heredan automáticamente**.
+
+**Usuario nuevo que quiera editar/sincronizar** la config compartida:
+
+```bash
+sudo usermod -aG confshare <usuario>
+```
+
+(Sólo para leer/usar la config no hace falta: la heredan de `/etc/skel`.)
+
+### Sincronizar cambios
+
+Cualquier usuario del grupo, desde cualquier lado:
+
+```bash
+cachyos-sync
+```
+
+Hace `git pull` del clon en `/opt` (los symlinks de Code OSS se actualizan solos) y re-aplica las configs de sistema vía `sudo install.sh`.
 
 ## Sway
 

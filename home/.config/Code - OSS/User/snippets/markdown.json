@@ -1,0 +1,49 @@
+{
+  "Marp: Setup completo": {
+    "prefix": "marp-init",
+    "body": ["---","marp: true","theme: ${1|default,gaia,uncover|}","paginate: true","header: '${2:}'","footer: '${3:}'","backgroundColor: ${4:#ffffff}","color: ${5:#333333}","style: |","  section {","    font-family: ${6:'Segoe UI', sans-serif};","  }","---","","<!-- _class: lead -->","","# ${7:Título de la presentación}","","${8:Subtítulo o descripción}","","${9:Autor} &nbsp;·&nbsp; ${10:Fecha}","","---","","$0"]
+  },
+  "Marp: Solo frontmatter mínimo": {
+    "prefix": "marp-front",
+    "body": ["---","marp: true","theme: ${1|default,gaia,uncover|}","paginate: true","---","","# ${2:Título}","","$0"]
+  },
+  "Marp: Slide - Título centrado (lead)": {
+    "prefix": "slide-lead",
+    "body": ["---","","<!-- _class: lead -->","","# ${1:Título}","","${2:Subtítulo}","","$0"]
+  },
+  "Marp: Slide - Dos columnas": {
+    "prefix": "slide-2col",
+    "body": ["---","","# ${1:Título}","","<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:2rem\">","<div>","","${2:Columna izquierda}","","</div>","<div>","","${3:Columna derecha}","","</div>","</div>","","$0"]
+  },
+  "Marp: Slide - Con imagen de fondo": {
+    "prefix": "slide-bg",
+    "body": ["---","","<!-- _backgroundImage: url('${1:ruta/imagen.jpg}') -->","<!-- _color: ${2:#ffffff} -->","","# ${3:Título sobre fondo}","","${4:Texto}","","$0"]
+  },
+  "Marp: Slide - Imagen + texto (split)": {
+    "prefix": "slide-split",
+    "body": ["---","","# ${1:Título}","","<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center\">","<div>","","${2:Texto explicativo}","","</div>","<div>","","![${3:alt} w:${4:450}](${5:ruta/imagen.jpg})","","</div>","</div>","","$0"]
+  },
+  "Marp: Slide - Sección/separador": {
+    "prefix": "slide-section",
+    "body": ["---","","<!-- _class: lead -->","<!-- _backgroundColor: ${1:#1e293b} -->","<!-- _color: ${2:#ffffff} -->","<!-- _paginate: false -->","","## ${3:Sección}","","$0"]
+  },
+  "Marp: Slide - Cierre": {
+    "prefix": "slide-end",
+    "body": ["---","","<!-- _class: lead -->","<!-- _paginate: false -->","","# ${1:¡Gracias!}","","${2:contacto@ejemplo.com}","","$0"]
+  },
+  "Marp: Nota del presentador": {
+    "body": ["<!--","${1:Nota del presentador}","-->","","$0"]
+  },
+  "Marp: Imagen con tamaño": {
+    "prefix": "marp-img",
+    "body": ["![${1:alt} ${2|w:400,h:300,w:80%,fit|}](${3:ruta/imagen.jpg})","$0"]
+  },
+  "Marp: Directiva de slide": {
+    "prefix": "marp-dir",
+    "body": ["<!-- _${1|class,backgroundColor,color,backgroundImage,paginate|}: ${2:valor} -->","$0"]
+  },
+  "Marp: Tabla simple": {
+    "prefix": "marp-table",
+    "body": ["| ${1:Columna A} | ${2:Columna B} | ${3:Columna C} |","| --- | --- | --- |","| ${4:dato} | ${5:dato} | ${6:dato} |","| $7 | $8 | $9 |","","$0"]
+  }
+}

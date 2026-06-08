@@ -28,6 +28,9 @@ PACKAGES=(
     # Bluetooth
     blueman
 
+    # Editor (Markdown / Marp)
+    code
+
     # Extras
     jq
 )
@@ -43,6 +46,14 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Usuario destino de las configs de ~/ (el que invocó sudo, no root)
+TARGET_USER="${SUDO_USER:-root}"
+USER_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+if [ -z "$USER_HOME" ]; then
+    echo "No pude resolver el home de '$TARGET_USER'."
+    exit 1
+fi
 
 install_system() {
     local src="$REPO_DIR/$1"
@@ -60,17 +71,39 @@ install_system usr/local/bin/sway-session-switch
 chmod +x /usr/local/bin/sway-session-switch
 
 # ── Archivos de usuario ───────────────────────────────────────────────────────
+# Copia un archivo de home/ al home del usuario y deja la propiedad correcta
+# (se ejecuta como root, así que hay que devolver el ownership a $TARGET_USER).
 install_user() {
-    local src="$REPO_DIR/home/$1"
-    local dst="$HOME/$1"
-    mkdir -p "$(dirname "$dst")"
+    local rel="$1"
+    local src="$REPO_DIR/home/$rel"
+    local dst="$USER_HOME/$rel"
+    sudo -u "$TARGET_USER" mkdir -p "$(dirname "$dst")"
     cp "$src" "$dst"
-    echo -e "${ok} ~/$1"
+    chown "$TARGET_USER:$TARGET_USER" "$dst"
+    echo -e "${ok} ~/$rel"
 }
 
-echo -e "${info} Instalando configs de usuario para $SUDO_USER (${HOME})..."
+echo -e "${info} Instalando configs de usuario para $TARGET_USER (${USER_HOME})..."
+
+# sway
 install_user .config/sway/show-keybindings.sh
-chmod +x "$HOME/.config/sway/show-keybindings.sh"
+chmod +x "$USER_HOME/.config/sway/show-keybindings.sh"
+
+# Code OSS (Markdown / Marp)
+install_user ".config/Code - OSS/User/settings.json"
+install_user ".config/Code - OSS/User/keybindings.json"
+install_user ".config/Code - OSS/User/snippets/markdown.json"
+
+# Extensiones de Code OSS (se instalan en el perfil del usuario)
+echo -e "${info} Instalando extensiones de Code OSS..."
+for ext in marp-team.marp-vscode yzhang.markdown-all-in-one; do
+    if sudo -u "$TARGET_USER" code --install-extension "$ext" --force >/dev/null 2>&1; then
+        echo -e "${ok} ext $ext"
+    else
+        echo -e "  (no se pudo instalar $ext automáticamente; instalala desde la UI)"
+    fi
+done
 
 echo ""
 echo -e "${ok} Todo listo. Iniciá sway o recargá con \$mod+Shift+c."
+echo -e "${info} Code OSS: edición de Markdown/Marp lista (preview ctrl+shift+v, Marp ctrl+shift+m)."

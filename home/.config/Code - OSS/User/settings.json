@@ -1,0 +1,32 @@
+{
+  // ── Globales (igual que el resto del editor, también al programar) ──
+  "workbench.colorTheme": "Dark Modern",
+  "editor.fontSize": 16,
+  "workbench.startupEditor": "none",
+  "claudeCode.preferredLocation": "panel",
+
+  // ── Marp / Markdown (sólo afectan archivos .md) ──
+  "markdown.marp.enableHtml": true,
+  "markdown.marp.breaks": "on",
+  "explorer.compactFolders": false,
+
+  // ── Comodidad de escritura SÓLO en Markdown ──
+  // (Para modo distracción-cero usá Zen Mode: ctrl+shift+z)
+  "[markdown]": {
+    "editor.lineNumbers": "off",
+    "editor.wordWrap": "on",
+    "editor.lineHeight": 1.8,
+    "editor.fontSize": 15,
+    "editor.minimap.enabled": false,
+    "editor.renderWhitespace": "none",
+    "editor.renderLineHighlight": "none",
+    "editor.occurrencesHighlight": "off",
+    "editor.padding.top": 40,
+    "editor.padding.bottom": 40,
+    "editor.cursorBlinking": "smooth",
+    "editor.overviewRulerBorder": false,
+    "editor.hideCursorInOverviewRuler": true,
+    "editor.scrollbar.vertical": "hidden",
+    "editor.scrollbar.horizontal": "hidden"
+  }
+}

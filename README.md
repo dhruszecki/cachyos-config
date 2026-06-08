@@ -15,6 +15,10 @@ cachyos-config/
 │   └── sway-session-switch          → /usr/local/bin/sway-session-switch
 ├── home/.config/sway/
 │   └── show-keybindings.sh          → ~/.config/sway/show-keybindings.sh
+├── home/.config/Code - OSS/User/
+│   ├── settings.json                → ~/.config/Code - OSS/User/settings.json
+│   ├── keybindings.json             → ~/.config/Code - OSS/User/keybindings.json
+│   └── snippets/markdown.json       → ~/.config/Code - OSS/User/snippets/markdown.json
 └── install.sh
 ```
 
@@ -29,6 +33,10 @@ sudo ./install.sh
 ```
 
 El script instala los paquetes necesarios con `pacman` y copia los archivos a sus destinos.
+
+> **Multi-usuario:** las configs de `home/` se copian al home del usuario que ejecuta el instalador y quedan con su propiedad. Para que las tenga otro usuario (ej. `daro` y `daro-m`), cada uno corre `sudo ./install.sh` una vez. Lo mismo para usuarios nuevos.
+>
+> **Sincronizar cambios:** `git pull && sudo ./install.sh` (vuelve a copiar las versiones actualizadas).
 
 ## Sway
 
@@ -169,6 +177,46 @@ Config en `/etc/xdg/waybar/` — global para todos los usuarios.
 
 **Click en el nombre de usuario** → abre el switcher de sesiones (`sway-session-switch`).
 
+## Code OSS (Markdown / Marp)
+
+Editor configurado para escribir Markdown y armar presentaciones con [Marp](https://marp.app/).
+
+- **Tema y fuente son globales** (los mismos que para programar). La comodidad de escritura (sin números de línea, word-wrap, line-height 1.8, sin minimapa, padding, etc.) está scopeada a `[markdown]`, así que **sólo afecta archivos `.md`** y no molesta al editar código.
+- Para modo distracción-cero: **Zen Mode** con `ctrl+shift+z`.
+- Extensiones que instala el script: `marp-team.marp-vscode` y `yzhang.markdown-all-in-one`.
+
+### Keybindings (sólo en `.md` salvo aclaración)
+
+| Shortcut | Acción |
+|---|---|
+| `ctrl+shift+v` | Preview de Markdown al costado |
+| `ctrl+shift+m` | Preview de Marp |
+| `ctrl+shift+e` | Exportar con Marp (PDF/PPTX/HTML) |
+| `ctrl+shift+t` | Insertar tabla de contenidos |
+| `ctrl+shift+c` | Marcar/desmarcar tarea de la lista |
+| `ctrl+enter` | Insertar separador de slide (`---`) |
+| `ctrl+shift+b` | Mostrar/ocultar sidebar (global) |
+| `ctrl+shift+z` | Zen Mode (global) |
+| `` ctrl+` `` | Mostrar/ocultar terminal (global) |
+
+### Snippets de Marp
+
+Escribí el prefijo y `Tab`:
+
+| Prefijo | Qué inserta |
+|---|---|
+| `marp-init` | Frontmatter Marp completo (tema, paginado, header/footer, estilo) + slide de portada |
+| `marp-front` | Frontmatter mínimo |
+| `slide-lead` | Slide con título centrado (clase `lead`) |
+| `slide-2col` | Slide a dos columnas |
+| `slide-bg` | Slide con imagen de fondo |
+| `slide-split` | Slide imagen + texto (split) |
+| `slide-section` | Slide separador de sección |
+| `slide-end` | Slide de cierre |
+| `marp-img` | Imagen con tamaño (`w:`/`h:`/`fit`) |
+| `marp-dir` | Directiva de slide (`_class`, `_backgroundColor`, …) |
+| `marp-table` | Tabla simple |
+
 ## Agregar nueva herramienta al repo
 
 1. Copiar los archivos de config al repo siguiendo la estructura del filesystem:
@@ -181,4 +229,4 @@ Config en `/etc/xdg/waybar/` — global para todos los usuarios.
 
 ## Paquetes instalados por `install.sh`
 
-`sway` `swaylock` `swayidle` `swaynag` `waybar` `mako` `fuzzel` `foot` `wl-clipboard` `cliphist` `wob` `pamixer` `brightnessctl` `playerctl` `grim` `slurp` `autotiling` `kanshi` `blueman` `jq`
+`sway` `swaylock` `swayidle` `swaynag` `waybar` `mako` `fuzzel` `foot` `wl-clipboard` `cliphist` `wob` `pamixer` `brightnessctl` `playerctl` `grim` `slurp` `autotiling` `kanshi` `blueman` `code` `jq`

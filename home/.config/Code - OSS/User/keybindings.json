@@ -1,0 +1,11 @@
+[
+  { "key": "ctrl+shift+v", "command": "markdown.showPreviewToSide", "when": "editorLangId == markdown" },
+  { "key": "ctrl+shift+m", "command": "marp-vscode.showMarpPreview", "when": "editorLangId == markdown" },
+  { "key": "ctrl+shift+e", "command": "marp-vscode.export", "when": "editorLangId == markdown" },
+  { "key": "ctrl+shift+b", "command": "workbench.action.toggleSidebarVisibility" },
+  { "key": "ctrl+`", "command": "workbench.action.terminal.toggleTerminal" },
+  { "key": "ctrl+shift+z", "command": "workbench.action.toggleZenMode" },
+  { "key": "ctrl+shift+c", "command": "markdown.extension.checkTaskList", "when": "editorLangId == markdown" },
+  { "key": "ctrl+shift+t", "command": "markdown.extension.toc.create", "when": "editorLangId == markdown" },
+  { "key": "ctrl+enter", "command": "editor.action.insertSnippet", "when": "editorLangId == markdown", "args": { "snippet": "\n---\n\n$0" } }
+]

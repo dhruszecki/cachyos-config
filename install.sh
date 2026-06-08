@@ -7,8 +7,8 @@ info="\e[34m→\e[0m"
 
 # ── Paquetes ──────────────────────────────────────────────────────────────────
 PACKAGES=(
-    # Compositor y sesion
-    sway swaylock swayidle swaynag
+    # Compositor y sesion (swaynag viene incluido en el paquete sway)
+    sway swaylock swayidle
 
     # Barra y notificaciones
     waybar mako

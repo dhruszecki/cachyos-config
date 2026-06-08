@@ -264,4 +264,4 @@ Escribí el prefijo y `Tab`:
 
 ## Paquetes instalados por `install.sh`
 
-`sway` `swaylock` `swayidle` `swaynag` `waybar` `mako` `fuzzel` `foot` `wl-clipboard` `cliphist` `wob` `pamixer` `brightnessctl` `playerctl` `grim` `slurp` `autotiling` `kanshi` `blueman` `code` `jq`
+`sway` `swaylock` `swayidle` `waybar` `mako` `fuzzel` `foot` `wl-clipboard` `cliphist` `wob` `pamixer` `brightnessctl` `playerctl` `grim` `slurp` `autotiling` `kanshi` `blueman` `code` `jq`

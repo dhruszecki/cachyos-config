@@ -131,8 +131,31 @@ al crearse). Usado por las PWAs de trabajo en `~/.config/sway/config.d/work-pwa.
 (solo daro-m; versionado en el repo bajo el guard `daro-m` de `install.sh`). Layout actual:
 - `$mod+Shift+m` → Slack (scratchpad)      ·  `$mod+Shift+w` → WhatsApp (scratchpad)
 - `$mod+Shift+a` → Calendar trabajo (scratchpad)  ·  `$mod+Shift+i` → Gmail trabajo (scratchpad)
-- `$mod+Shift+g` → Meet → **workspace 6** (assign, no flotante)
+- `$mod+Shift+g` → Meet → **workspace propio con tag `6:Meet`** (`focus-or-launch-app`, no
+  scratchpad; ver más abajo). `$mod+6` también pisa el bind global para nombrar el ws.
 - Launchers en fuzzel: `~/.local/share/applications/{slack,whatsapp,meet,calendar,gmail}-pwa.desktop`
+
+### Focus-or-launch en workspace propio (`focus-or-launch-app`)
+Contraparte de `toggle-scratch-app` para apps que quieren **workspace propio** (vía `assign`),
+no scratchpad. Helper global `usr/local/bin/focus-or-launch-app <regex_app_id> <comando...>`:
+si ya existe una ventana → la **enfoca** (salta a su workspace, sin duplicar); si no existe →
+la **lanza** (el `assign` la ubica). Usado por Meet (`work-pwa.conf`) y las Google Apps
+(`google-apps.conf`). Patrón completo para una app con ws propio nombrado:
+```
+set $ws_x "N:Nombre"
+assign [app_id="<regex>"] number $ws_x      # ← number es CLAVE (ver gotcha abajo)
+for_window [app_id="<regex>"] layout tabbed  # varios docs → pestañas
+bindsym $mod+N workspace number $ws_x         # pisa el bind numérico global, nombra el ws
+bindsym $mod+Shift+X exec /usr/local/bin/focus-or-launch-app '<regex>' <comando>
+```
+
+> ⚠️ **GOTCHA workspace duplicado (`N` pelado + `N:Nombre`).** `assign [...] $ws_x` (sin la
+> palabra `number`) matchea por **nombre exacto**: si ya existe un workspace `"N"` pelado
+> (leftover, o creado por el bind numérico global antes de que cargara el override), sway
+> crea un `"N:Nombre"` **aparte** → terminás con dos workspaces num=N. **Fix: `assign [...]
+> number $ws_x`** — matchea por número, así entra al `"N"` existente o crea `"N:Nombre"` si
+> no hay ninguno. Los binds (`workspace number $ws_x`) ya usan `number`; el que faltaba era
+> el `assign`. Mismo principio en `move container to workspace number`.
 
 > ⚠️ **GOTCHA Brave/Chromium en Wayland: `--class` se IGNORA.** Todas las ventanas normales
 > quedan con app_id `brave-browser`. Las ventanas `--app=URL` reciben un app_id autogenerado
@@ -179,13 +202,24 @@ funciona normal. Alternativas para la cuenta de trabajo:
 ### Apps de Google Workspace (Drive/Docs/Sheets/Slides) — globales
 A diferencia de las apps de trabajo (por-usuario, scratchpad), estas son **globales**
 (todos los usuarios) y viven en `etc/sway/config.d/google-apps.conf` (cargado por
-`include /etc/sway/config.d/*`). Usan **toggle por-app** (`toggle-scratch-app`, flotante
-y centrado, misma tecla muestra/oculta — sin cycling). Launchers en `usr/share/applications/`.
-- `$mod+Shift+d` → Drive · `$mod+Shift+o` → Docs · `$mod+Shift+t` → Sheets · `$mod+Shift+p` → Slides
-  (Sheets quedó en `t` porque `$mod+Shift+s` ya es swaylock).
+`include /etc/sway/config.d/*`). Modelo: cada app tiene su **workspace propio con tag**
+(`assign number` + `focus-or-launch-app` + `layout tabbed`), NO scratchpad (cambió desde
+el modelo viejo de toggle). Launchers en `usr/share/applications/`.
+- `$mod+Shift+d` → Drive (`7:Drive`) · `$mod+Shift+o` → Docs (`8:Docs`) ·
+  `$mod+Shift+t` → Sheets (`9:Sheets`) · `$mod+Shift+p` → Slides (`10:Slides`).
+  (Sheets quedó en `t` porque `$mod+Shift+s` ya es swaylock.)
+- `$mod+7..0` pisan los binds numéricos globales para **nombrar** los workspaces con su tag
+  (se cargan después en `config.d/*`). Mismo patrón `assign number` del helper de arriba.
 - Cuenta por `/u/0/` en la URL = la default del perfil de Brave de cada usuario.
 - Docs/Sheets/Slides comparten host (`docs.google.com`) → se distinguen por el **path**
   del app_id (`__document`, `__spreadsheets`, `__presentation`).
+
+> ⚠️ **GOTCHA waybar: `{name}` STRIPPEA el prefijo `N:`.** El módulo `sway/workspaces` con
+> `"format": "{name}"` muestra solo `Meet`/`Sheets` (sin el número), porque `{name}` se come
+> el `N:` que sway usa para numerar. Para que el tag muestre el número usar
+> **`"format": "{value}"`** (`{value}` = nombre crudo tal cual, ej. `6:Meet`). En
+> `etc/xdg/waybar/config.jsonc`.
+
 > Slides no editaba en Brave (cartel "Tu navegador no permite editar presentaciones"):
 > era la extensión **User-Agent Switcher** (UA no reconocido → solo-lectura). Sin esa
 > extensión (o excluyendo `google.com`), Slides edita normal. No es Shields ni cookies.

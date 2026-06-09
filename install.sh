@@ -31,6 +31,11 @@ PACKAGES=(
     # Editor (Markdown / Marp)
     code
 
+    # Calendario (Google Calendar vía GNOME Online Accounts)
+    # gnome-keyring/gcr: Secret Service para guardar el token de Google.
+    gnome-calendar gnome-online-accounts gnome-control-center evolution-data-server
+    gnome-keyring gcr
+
     # Extras
     jq
 )
@@ -71,6 +76,8 @@ install_system usr/local/bin/sway-session-switch
 chmod +x /usr/local/bin/sway-session-switch
 install_system usr/local/bin/cachyos-sync
 chmod +x /usr/local/bin/cachyos-sync
+install_system usr/local/bin/toggle-calendar
+chmod +x /usr/local/bin/toggle-calendar
 
 # ── Archivos de usuario ───────────────────────────────────────────────────────
 # Copia un archivo de home/ al home del usuario y deja la propiedad correcta
@@ -101,6 +108,10 @@ echo -e "${info} Instalando configs de usuario para $TARGET_USER (${USER_HOME}).
 # sway
 install_user .config/sway/show-keybindings.sh
 chmod +x "$USER_HOME/.config/sway/show-keybindings.sh"
+
+# Terminal y flags de Brave (compartidos vía symlink → git pull los actualiza)
+link_user ".config/foot/foot.ini"
+link_user ".config/brave-flags.conf"
 
 # Code OSS (Markdown / Marp) — symlinks al repo para sync vía git pull
 link_user ".config/Code - OSS/User/settings.json"

@@ -63,6 +63,12 @@ ln -sfn "$REPO/home/.config/Code - OSS/User/keybindings.json"       "$SKEL/keybi
 ln -sfn "$REPO/home/.config/Code - OSS/User/snippets/markdown.json" "$SKEL/snippets/markdown.json"
 echo -e "${ok} /etc/skel: symlinks de Code OSS para usuarios nuevos"
 
+# Terminal (foot) y flags de Brave para usuarios nuevos
+mkdir -p "/etc/skel/.config/foot"
+ln -sfn "$REPO/home/.config/foot/foot.ini"     "/etc/skel/.config/foot/foot.ini"
+ln -sfn "$REPO/home/.config/brave-flags.conf"  "/etc/skel/.config/brave-flags.conf"
+echo -e "${ok} /etc/skel: symlinks de foot.ini + brave-flags.conf"
+
 echo ""
 echo -e "${ok} Bootstrap completo."
 echo -e "${info} Usuarios nuevos: para que puedan EDITAR/sincronizar la config compartida,"

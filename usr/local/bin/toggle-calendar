@@ -1,0 +1,9 @@
+#!/bin/sh
+# Toggle de GNOME Calendar en el scratchpad de Sway. Global (todos los usuarios).
+# Si está abierto -> muestra/oculta. Si no -> lo lanza (la regla for_window de
+# /etc/sway/config lo manda al scratchpad y lo muestra centrado).
+if swaymsg -t get_tree | grep -q '"app_id": "org.gnome.Calendar"'; then
+    swaymsg '[app_id="org.gnome.Calendar"] scratchpad show'
+else
+    exec gnome-calendar
+fi

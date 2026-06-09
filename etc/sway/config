@@ -83,6 +83,10 @@ default_floating_border pixel 2
 
 ### Autostart
 #
+# Servicio de secretos (Secret Service). Necesario para GNOME Online Accounts
+# (guardar el token de Google que usa GNOME Calendar). En Sway no hay sesion
+# GNOME que lo arranque, asi que lo lanzamos aca.
+exec /usr/bin/gnome-keyring-daemon --start --components=secrets
 # Daemon de notificaciones
 exec mako
 # Layout automatico: alterna split horizontal/vertical segun la proporcion
@@ -104,12 +108,8 @@ for_window [app_id="pavucontrol"] floating enable
 for_window [app_id="firefox" title="^Picture-in-Picture$"] floating enable, sticky enable
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="dialog"] floating enable
-# Slack PWA (Brave en modo --app, app_id=slack-pwa) → siempre al workspace 4
-assign [app_id="slack-pwa"] workspace number 4
-# WhatsApp PWA (Brave en modo --app, app_id=whatsapp-pwa) → siempre al workspace 5
-assign [app_id="whatsapp-pwa"] workspace number 5
-# Google Meet PWA (Brave en modo --app, app_id=meet-pwa) → siempre al workspace 6
-assign [app_id="meet-pwa"] workspace number 6
+# Reglas/keybindings específicos de cada usuario (ej. PWAs de trabajo) viven en
+# ~/.config/sway/config.d/*.conf (ver include al final). NO globales.
 
 ### Key bindings
 #
@@ -133,14 +133,8 @@ assign [app_id="meet-pwa"] workspace number 6
     # Abrir el navegador
     bindsym $mod+Shift+b exec $browser
 
-    # Abrir Slack (PWA en Brave, app_id=slack-pwa → workspace 4 por regla assign)
-    bindsym $mod+Shift+m exec /usr/bin/brave --app=https://app.slack.com/client/ --class=slack-pwa --name=slack-pwa
-
-    # Abrir WhatsApp (PWA en Brave, app_id=whatsapp-pwa → workspace 5 por regla assign)
-    bindsym $mod+Shift+w exec /usr/bin/brave --app=https://web.whatsapp.com/ --class=whatsapp-pwa --name=whatsapp-pwa
-
-    # Abrir Google Meet (PWA en Brave, app_id=meet-pwa → workspace 6 por regla assign)
-    bindsym $mod+Shift+g exec /usr/bin/brave --app=https://meet.google.com/ --class=meet-pwa --name=meet-pwa
+    # NOTA: los binds de apps de trabajo ($mod+Shift+m/w/g → Slack/WhatsApp/Meet)
+    # se definen por-usuario en ~/.config/sway/config.d/*.conf (ver include final).
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
@@ -242,6 +236,15 @@ assign [app_id="meet-pwa"] workspace number 6
     # Show the next scratchpad window or hide the focused scratchpad window.
     # If there are multiple scratchpad windows, this command cycles through them.
     bindsym $mod+minus scratchpad show
+
+# GNOME Calendar (global, todos los usuarios):
+#   $mod+c muestra/oculta/lanza GNOME Calendar como ventana flotante en el
+#   scratchpad (equivalente a "minimizar a la barra"). Cliente liviano para
+#   Google Calendar vía GNOME Online Accounts.
+    for_window [app_id="org.gnome.Calendar"] move scratchpad, scratchpad show, resize set 1000 720, move position center
+    bindsym $mod+c exec /usr/local/bin/toggle-calendar
+# Recordatorios de eventos -> popups de mako (el daemon no arranca solo en Sway).
+exec /usr/lib/evolution-data-server/evolution-alarm-notify
 #
 # Resizing containers:
 #
@@ -321,3 +324,7 @@ bindsym $mod+r mode "resize"
 # }
 
 include /etc/sway/config.d/*
+
+# Overrides/reglas por-usuario (ej. PWAs de trabajo solo para daro-m).
+# Cada usuario pone sus .conf acá; si no existe el dir, el glob no falla.
+include ~/.config/sway/config.d/*.conf

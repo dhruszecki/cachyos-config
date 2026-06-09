@@ -123,12 +123,20 @@ RAM hasta el primer uso (launch-on-demand). Es el equivalente a "minimizar a la 
   con creación de eventos + Meet. Más pesadas (Chromium) pero confinadas al scratchpad.
 
 ### Toggle genérico en scratchpad (`toggle-scratch-app`)
-Helper global `usr/local/bin/toggle-scratch-app <app_id> <comando...>`: si la app corre la
-muestra/oculta, si no la lanza. Combinar con `for_window [app_id="..."] move scratchpad,
-scratchpad show, ...`. Usado por las PWAs de trabajo en `~/.config/sway/config.d/work-pwa.conf`
-(**local de daro-m, NO en el repo**, igual que Slack/WhatsApp/Meet):
-- `$mod+Shift+a` → Calendar de trabajo (`gcal-pwa`, calendar.google.com)
-- `$mod+Shift+i` → Gmail de trabajo (`gmail-pwa`, mail.google.com)
+Helper global `usr/local/bin/toggle-scratch-app <regex_app_id> <comando...>`: si existe una
+ventana cuyo app_id matchea la regex la muestra/oculta, si no la lanza. Combinar con
+`for_window [app_id="<misma_regex>"] move scratchpad, scratchpad show, ...`. Usado por las
+PWAs de trabajo en `~/.config/sway/config.d/work-pwa.conf` (**local de daro-m, NO en el repo**):
+- `$mod+Shift+a` → Calendar de trabajo (calendar.google.com)
+- `$mod+Shift+i` → Gmail de trabajo (mail.google.com)
+
+> ⚠️ **GOTCHA Brave/Chromium en Wayland: `--class` se IGNORA.** Todas las ventanas normales
+> quedan con app_id `brave-browser`. Las ventanas `--app=URL` reciben un app_id autogenerado
+> de la URL: `brave-<host>...-Default` (ej. Slack = `brave-app.slack.com__client_-Default`).
+> Por eso **no sirve `[app_id="slack-pwa"]`** — hay que matchear por regex del host:
+> `[app_id="^brave-calendar\.google\.com"]`. (Los `assign [app_id="slack-pwa"]` viejos en
+> work-pwa.conf están rotos por esto.) Verificar el app_id real con
+> `swaymsg -t get_tree | jq -r '..|objects|.app_id?//empty'`.
 
 > Las PWAs abren en el **perfil default de Brave**. Si la cuenta trabajo no es la default de
 > Google en ese perfil, usar `/u/N/` en la URL o un `--profile-directory` dedicado.

@@ -1,15 +1,21 @@
 #!/bin/sh
-# Toggle de una app en el scratchpad de Sway, identificada por app_id.
-# Si la app ya corre -> la muestra/oculta. Si no corre -> la lanza.
-# Uso: toggle-scratch-app <app_id> <comando para lanzarla...>
+# Toggle de una app en el scratchpad de Sway, identificada por una REGEX de app_id.
+# Si ya existe una ventana cuyo app_id matchea -> la muestra/oculta.
+# Si no existe -> la lanza (el resto de args es el comando).
 #
-# La app debe tener una regla en el config de Sway tipo:
-#   for_window [app_id="<app_id>"] move scratchpad, scratchpad show, ...
-# para que al lanzarse caiga en el scratchpad y se muestre.
-app_id="$1"
+# Uso: toggle-scratch-app <regex_app_id> <comando para lanzarla...>
+#
+# Pensado para PWAs de Brave/Chromium: bajo Wayland IGNORAN --class y reciben un
+# app_id autogenerado a partir de la URL del --app, tipo "brave-<host>...-Default".
+# Por eso se matchea por regex del host (ej. '^brave-calendar\.google\.com').
+# Requiere una regla en el config de Sway:
+#   for_window [app_id="<misma_regex>"] move scratchpad, scratchpad show, ...
+pattern="$1"
 shift
-if swaymsg -t get_tree | grep -q "\"app_id\": \"$app_id\""; then
-    swaymsg "[app_id=\"$app_id\"] scratchpad show"
+if swaymsg -t get_tree | jq -e --arg re "$pattern" \
+        '[recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id != null and (.app_id | test($re)))] | length > 0' \
+        >/dev/null 2>&1; then
+    swaymsg "[app_id=\"$pattern\"] scratchpad show"
 else
     exec "$@"
 fi

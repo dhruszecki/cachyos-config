@@ -111,6 +111,17 @@ echo -e "${info} Instalando configs de usuario para $TARGET_USER (${USER_HOME}).
 install_user .config/sway/show-keybindings.sh
 chmod +x "$USER_HOME/.config/sway/show-keybindings.sh"
 
+# Apps de trabajo (solo daro-m): reglas de Sway (PWAs en scratchpad/workspace) + launchers
+# de fuzzel. Guard por usuario para respetar la separación trabajo/personal: si instala
+# 'daro' (personal) no recibe las apps de trabajo.
+if [ "$TARGET_USER" = "daro-m" ]; then
+    echo -e "${info} Apps de trabajo para daro-m..."
+    install_user .config/sway/config.d/work-pwa.conf
+    for app in slack whatsapp meet calendar gmail; do
+        install_user ".local/share/applications/${app}-pwa.desktop"
+    done
+fi
+
 # Terminal y flags de Brave (compartidos vía symlink → git pull los actualiza)
 link_user ".config/foot/foot.ini"
 link_user ".config/brave-flags.conf"

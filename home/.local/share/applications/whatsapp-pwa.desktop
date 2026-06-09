@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=WhatsApp (PWA)
+GenericName=WhatsApp
+Comment=WhatsApp Web en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://web.whatsapp.com/ --class=whatsapp-pwa --name=whatsapp-pwa
+Icon=whatsapp
+Terminal=false
+Categories=Network;InstantMessaging;Chat;
+StartupWMClass=whatsapp-pwa
+StartupNotify=true

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Calendar (PWA)
+GenericName=Calendar
+Comment=Google Calendar de trabajo en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://calendar.google.com/
+Icon=org.gnome.Calendar
+Terminal=false
+Categories=Office;Calendar;
+StartupNotify=true

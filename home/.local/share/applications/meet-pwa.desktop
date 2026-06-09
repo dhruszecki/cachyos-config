@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Meet (PWA)
+GenericName=Google Meet
+Comment=Google Meet en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://meet.google.com/ --class=meet-pwa --name=meet-pwa
+Icon=/home/daro-m/.local/share/icons/meet-pwa.svg
+Terminal=false
+Categories=Network;VideoConference;AudioVideo;
+StartupWMClass=meet-pwa
+StartupNotify=true

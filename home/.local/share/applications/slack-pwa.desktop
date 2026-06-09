@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Slack (PWA)
+GenericName=Slack
+Comment=Slack en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://app.slack.com/client/ --class=slack-pwa --name=slack-pwa
+Icon=slack
+Terminal=false
+Categories=Network;InstantMessaging;Chat;
+StartupWMClass=slack-pwa
+StartupNotify=true

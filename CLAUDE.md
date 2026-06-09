@@ -78,6 +78,12 @@ swaymsg -t get_config | jq -r .config | grep '<lo que busco>'
 ```
 Si está en el repo pero no en la config viva → falta `sudo ./install.sh` y/o `swaymsg reload`.
 
+> ⚠️ **`get_config` NO expande los `include`**: muestra el archivo top-level con las
+> líneas `include` literales, no el contenido de `work-pwa.conf` ni de `config.d/*`. Para
+> validar binds de archivos incluidos usá `sway -C -c /etc/sway/config` (procesa includes
+> y reporta errores) o probá el bind a mano. No concluyas "no está cargado" solo porque no
+> aparece en `get_config`.
+
 ---
 
 ## 4. `exec` vs `exec_always` (daemons)
@@ -109,6 +115,23 @@ Piezas (todas en el repo, globales):
 **Comportamiento:** vive escondido en el scratchpad; `$mod+c` lo trae/oculta. No consume
 RAM hasta el primer uso (launch-on-demand). Es el equivalente a "minimizar a la barra"
 (Wayland/Sway no tiene minimizar a tray real).
+
+### Reparto personal vs trabajo (trabajo)
+- **Personal** → GNOME Calendar nativo (`$mod+c`, liviano). Funciona vía GOA sin restricciones.
+- **Trabajo (tu-dominio-corporativo)** → **PWAs de Brave** (Calendar + Gmail), porque el Workspace
+  bloquea GOA (ver Gotcha 2). Las PWAs usan el login first-party de Google → sin bloqueo,
+  con creación de eventos + Meet. Más pesadas (Chromium) pero confinadas al scratchpad.
+
+### Toggle genérico en scratchpad (`toggle-scratch-app`)
+Helper global `usr/local/bin/toggle-scratch-app <app_id> <comando...>`: si la app corre la
+muestra/oculta, si no la lanza. Combinar con `for_window [app_id="..."] move scratchpad,
+scratchpad show, ...`. Usado por las PWAs de trabajo en `~/.config/sway/config.d/work-pwa.conf`
+(**local de daro-m, NO en el repo**, igual que Slack/WhatsApp/Meet):
+- `$mod+Shift+a` → Calendar de trabajo (`gcal-pwa`, calendar.google.com)
+- `$mod+Shift+i` → Gmail de trabajo (`gmail-pwa`, mail.google.com)
+
+> Las PWAs abren en el **perfil default de Brave**. Si la cuenta trabajo no es la default de
+> Google en ese perfil, usar `/u/N/` en la URL o un `--profile-directory` dedicado.
 
 ### Online Accounts en Sway (requisitos y gotchas no obvios)
 Para agregar la cuenta Google hace falta un **Secret Service** corriendo, que en Sway no

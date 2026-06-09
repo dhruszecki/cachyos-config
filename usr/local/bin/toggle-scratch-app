@@ -1,0 +1,15 @@
+#!/bin/sh
+# Toggle de una app en el scratchpad de Sway, identificada por app_id.
+# Si la app ya corre -> la muestra/oculta. Si no corre -> la lanza.
+# Uso: toggle-scratch-app <app_id> <comando para lanzarla...>
+#
+# La app debe tener una regla en el config de Sway tipo:
+#   for_window [app_id="<app_id>"] move scratchpad, scratchpad show, ...
+# para que al lanzarse caiga en el scratchpad y se muestre.
+app_id="$1"
+shift
+if swaymsg -t get_tree | grep -q "\"app_id\": \"$app_id\""; then
+    swaymsg "[app_id=\"$app_id\"] scratchpad show"
+else
+    exec "$@"
+fi

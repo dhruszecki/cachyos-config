@@ -78,6 +78,8 @@ install_system usr/local/bin/cachyos-sync
 chmod +x /usr/local/bin/cachyos-sync
 install_system usr/local/bin/toggle-calendar
 chmod +x /usr/local/bin/toggle-calendar
+install_system usr/local/bin/toggle-scratch-app
+chmod +x /usr/local/bin/toggle-scratch-app
 
 # ── Archivos de usuario ───────────────────────────────────────────────────────
 # Copia un archivo de home/ al home del usuario y deja la propiedad correcta

@@ -1,0 +1,23 @@
+#!/bin/sh
+# Focus-or-launch de una app identificada por una REGEX de app_id.
+#   - si existe una ventana (en cualquier workspace) -> la enfoca (salta a su workspace)
+#   - si no existe ninguna                           -> la lanza (resto de args)
+#
+# Uso: focus-or-launch-app <regex_app_id> <comando para lanzarla...>
+#
+# Contraparte de toggle-scratch-app, pero para apps con WORKSPACE PROPIO (via `assign`),
+# no scratchpad. Apretar la tecla te lleva a la app si ya estaba abierta (sin duplicar),
+# o la lanza si no existe (el `assign` la manda a su workspace). Pensado para PWAs de
+# Brave/Chromium: bajo Wayland IGNORAN --class y reciben un app_id autogenerado de la URL
+# del --app (tipo "brave-<host>...-Default"), por eso se matchea por regex del host.
+pattern="$1"
+shift
+
+exists=$(swaymsg -t get_tree | jq --arg re "$pattern" \
+    '[recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id != null and (.app_id | test($re)))] | length')
+
+if [ "${exists:-0}" -gt 0 ]; then
+    swaymsg "[app_id=\"$pattern\"] focus" >/dev/null
+else
+    exec "$@"
+fi

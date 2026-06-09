@@ -32,7 +32,10 @@
     "sway/workspaces": {
         "disable-scroll": false,
         "all-outputs": false,
-        "format": "{name}"
+        // {value} = nombre crudo del workspace TAL CUAL lo define sway, incluido el
+        // prefijo "N:" (ej. "6:Meet"). OJO: {name} STRIPPEA ese prefijo y mostraría
+        // solo "Meet" — por eso usamos {value} para que se vea el número.
+        "format": "{value}"
     },
 
     "sway/mode": {

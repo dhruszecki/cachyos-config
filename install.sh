@@ -80,6 +80,8 @@ install_system usr/local/bin/toggle-calendar
 chmod +x /usr/local/bin/toggle-calendar
 install_system usr/local/bin/toggle-scratch-app
 chmod +x /usr/local/bin/toggle-scratch-app
+install_system usr/local/bin/focus-or-launch-app
+chmod +x /usr/local/bin/focus-or-launch-app
 
 # Apps de Google Workspace (Drive/Docs/Sheets/Slides) como PWAs — GLOBALES.
 # Toggle por-app en scratchpad (config.d, incluido globalmente) + launchers de fuzzel.

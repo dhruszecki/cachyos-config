@@ -123,12 +123,16 @@ RAM hasta el primer uso (launch-on-demand). Es el equivalente a "minimizar a la 
   con creación de eventos + Meet. Más pesadas (Chromium) pero confinadas al scratchpad.
 
 ### Toggle genérico en scratchpad (`toggle-scratch-app`)
-Helper global `usr/local/bin/toggle-scratch-app <regex_app_id> <comando...>`: si existe una
-ventana cuyo app_id matchea la regex la muestra/oculta, si no la lanza. Combinar con
-`for_window [app_id="<misma_regex>"] move scratchpad, scratchpad show, ...`. Usado por las
-PWAs de trabajo en `~/.config/sway/config.d/work-pwa.conf` (**local de daro-m, NO en el repo**):
-- `$mod+Shift+a` → Calendar de trabajo (calendar.google.com)
-- `$mod+Shift+i` → Gmail de trabajo (mail.google.com)
+Helper global `usr/local/bin/toggle-scratch-app <regex_app_id> <comando...>`: visible→oculta
+(`move scratchpad`), oculta→muestra (`scratchpad show`), no existe→lanza. Robusto: funciona
+aunque la ventana ya estuviera abierta. Combinar con `for_window [app_id="<misma_regex>"]
+move scratchpad, scratchpad show, resize ..., move position center` (da flotante/tamaño/centro
+al crearse). Usado por las PWAs de trabajo en `~/.config/sway/config.d/work-pwa.conf`
+(**local de daro-m, NO en el repo**). Layout actual:
+- `$mod+Shift+m` → Slack (scratchpad)      ·  `$mod+Shift+w` → WhatsApp (scratchpad)
+- `$mod+Shift+a` → Calendar trabajo (scratchpad)  ·  `$mod+Shift+i` → Gmail trabajo (scratchpad)
+- `$mod+Shift+g` → Meet → **workspace 6** (assign, no flotante)
+- Launchers en fuzzel: `~/.local/share/applications/{slack,whatsapp,meet,calendar,gmail}-pwa.desktop`
 
 > ⚠️ **GOTCHA Brave/Chromium en Wayland: `--class` se IGNORA.** Todas las ventanas normales
 > quedan con app_id `brave-browser`. Las ventanas `--app=URL` reciben un app_id autogenerado

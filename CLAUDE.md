@@ -110,13 +110,36 @@ Piezas (todas en el repo, globales):
 RAM hasta el primer uso (launch-on-demand). Es el equivalente a "minimizar a la barra"
 (Wayland/Sway no tiene minimizar a tray real).
 
-### Online Accounts en Sway (requisito no obvio)
+### Online Accounts en Sway (requisitos y gotchas no obvios)
 Para agregar la cuenta Google hace falta un **Secret Service** corriendo, que en Sway no
 arranca solo:
 - `gnome-keyring-daemon --start --components=secrets` (autostart en `etc/sway/config`).
-- `goa-daemon` (`/usr/lib/goa-daemon`) se activa por D-Bus al abrir el panel.
-- Agregar la cuenta: `gnome-control-center` → **Online Accounts** → Google.
-- Sin gnome-keyring corriendo, **el alta de cuenta falla / no levanta**.
+  Expone `org.freedesktop.secrets`; verificar con
+  `busctl --user list | grep secrets`. Sin esto **el alta de cuenta falla / no levanta**.
+- `goa-daemon` (`/usr/lib/goa-daemon`) se activa por D-Bus (`org.gnome.OnlineAccounts`)
+  al abrir el panel; es activatable, no hace falta arrancarlo a mano.
+
+**Gotcha 1 — gnome-control-center se niega a correr fuera de GNOME.** v50 chequea
+`XDG_CURRENT_DESKTOP` y sale con *"only supported under GNOME and Unity, exiting"*.
+Lanzarlo siempre así:
+```bash
+XDG_CURRENT_DESKTOP=GNOME gnome-control-center online-accounts
+```
+Agregar la cuenta es de **una sola vez por usuario**; después GNOME Calendar la lee de GOA.
+
+**Gotcha 2 — cuenta de trabajo trabajo bloqueada por política de Workspace.** Agregar
+`tu-dominio-corporativo` vía GOA tira `Error 400: access_not_configured` ("Access blocked: admin
+needs to review GNOME"). Es política del Workspace de trabajo (apps de terceros no aprobadas),
+**no** un bug de config. La cuenta **personal** de Google sí funciona normal. Alternativas
+para la cuenta de trabajo:
+1. Pedir al admin de trabajo que apruebe la app GNOME (botón "Request Access").
+2. **Read-only sin OAuth:** suscribir la URL "Secret address in iCal format" del calendario
+   (Google Calendar web → Settings → Integrate calendar) en GNOME Calendar (Add calendar
+   from URL). Sirve para *ver*, no crear.
+3. **Full read/write bypass:** crear un OAuth client **propio** en un proyecto GCP dentro
+   de la org `tu-org-corporativa` con consent **Internal** (no requiere aprobación de admin) y
+   usarlo desde un script/CLI (gcalcli o REST API) → permite crear eventos + links de Meet.
+   Sujeto a que la org permita crear proyectos GCP.
 
 ---
 

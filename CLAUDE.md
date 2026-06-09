@@ -15,7 +15,7 @@ clonado en `~/cachyos-config`.
 
 Usuarios de la máquina:
 - `daro` = personal
-- `daro-m` = trabajo / trabajo
+- `daro-m` = trabajo
 
 `etc/` y `usr/` son **globales** (todos los usuarios). `home/` es **por-usuario**
 (va al home del que corre el instalador).
@@ -116,11 +116,11 @@ Piezas (todas en el repo, globales):
 RAM hasta el primer uso (launch-on-demand). Es el equivalente a "minimizar a la barra"
 (Wayland/Sway no tiene minimizar a tray real).
 
-### Reparto personal vs trabajo (trabajo)
+### Reparto personal vs trabajo
 - **Personal** → GNOME Calendar nativo (`$mod+c`, liviano). Funciona vía GOA sin restricciones.
-- **Trabajo (tu-dominio-corporativo)** → **PWAs de Brave** (Calendar + Gmail), porque el Workspace
-  bloquea GOA (ver Gotcha 2). Las PWAs usan el login first-party de Google → sin bloqueo,
-  con creación de eventos + Meet. Más pesadas (Chromium) pero confinadas al scratchpad.
+- **Trabajo (cuenta corporativa de Google Workspace)** → **PWAs de Brave** (Calendar + Gmail),
+  porque el Workspace bloquea GOA (ver Gotcha 2). Las PWAs usan el login first-party de Google
+  → sin bloqueo, con creación de eventos + Meet. Más pesadas (Chromium) pero confinadas al scratchpad.
 
 ### Toggle genérico en scratchpad (`toggle-scratch-app`)
 Helper global `usr/local/bin/toggle-scratch-app <regex_app_id> <comando...>`: visible→oculta
@@ -128,7 +128,7 @@ Helper global `usr/local/bin/toggle-scratch-app <regex_app_id> <comando...>`: vi
 aunque la ventana ya estuviera abierta. Combinar con `for_window [app_id="<misma_regex>"]
 move scratchpad, scratchpad show, resize ..., move position center` (da flotante/tamaño/centro
 al crearse). Usado por las PWAs de trabajo en `~/.config/sway/config.d/work-pwa.conf`
-(**local de daro-m, NO en el repo**). Layout actual:
+(solo daro-m; versionado en el repo bajo el guard `daro-m` de `install.sh`). Layout actual:
 - `$mod+Shift+m` → Slack (scratchpad)      ·  `$mod+Shift+w` → WhatsApp (scratchpad)
 - `$mod+Shift+a` → Calendar trabajo (scratchpad)  ·  `$mod+Shift+i` → Gmail trabajo (scratchpad)
 - `$mod+Shift+g` → Meet → **workspace 6** (assign, no flotante)
@@ -142,7 +142,7 @@ al crearse). Usado por las PWAs de trabajo en `~/.config/sway/config.d/work-pwa.
 > work-pwa.conf están rotos por esto.) Verificar el app_id real con
 > `swaymsg -t get_tree | jq -r '..|objects|.app_id?//empty'`.
 
-> Las PWAs abren en el **perfil default de Brave**. Si la cuenta trabajo no es la default de
+> Las PWAs abren en el **perfil default de Brave**. Si la cuenta de trabajo no es la default de
 > Google en ese perfil, usar `/u/N/` en la URL o un `--profile-directory` dedicado.
 
 ### Online Accounts en Sway (requisitos y gotchas no obvios)
@@ -162,19 +162,43 @@ XDG_CURRENT_DESKTOP=GNOME gnome-control-center online-accounts
 ```
 Agregar la cuenta es de **una sola vez por usuario**; después GNOME Calendar la lee de GOA.
 
-**Gotcha 2 — cuenta de trabajo trabajo bloqueada por política de Workspace.** Agregar
-`tu-dominio-corporativo` vía GOA tira `Error 400: access_not_configured` ("Access blocked: admin
-needs to review GNOME"). Es política del Workspace de trabajo (apps de terceros no aprobadas),
-**no** un bug de config. La cuenta **personal** de Google sí funciona normal. Alternativas
-para la cuenta de trabajo:
-1. Pedir al admin de trabajo que apruebe la app GNOME (botón "Request Access").
+**Gotcha 2 — cuenta de trabajo corporativa bloqueada por política de Workspace.** Agregar
+la cuenta corporativa de Google vía GOA tira `Error 400: access_not_configured` ("Access
+blocked: admin needs to review GNOME"). Es política del Workspace corporativo (apps de
+terceros no aprobadas), **no** un bug de config. La cuenta **personal** de Google sí
+funciona normal. Alternativas para la cuenta de trabajo:
+1. Pedir al admin del Workspace que apruebe la app GNOME (botón "Request Access").
 2. **Read-only sin OAuth:** suscribir la URL "Secret address in iCal format" del calendario
    (Google Calendar web → Settings → Integrate calendar) en GNOME Calendar (Add calendar
    from URL). Sirve para *ver*, no crear.
 3. **Full read/write bypass:** crear un OAuth client **propio** en un proyecto GCP dentro
-   de la org `tu-org-corporativa` con consent **Internal** (no requiere aprobación de admin) y
+   de la org corporativa con consent **Internal** (no requiere aprobación de admin) y
    usarlo desde un script/CLI (gcalcli o REST API) → permite crear eventos + links de Meet.
    Sujeto a que la org permita crear proyectos GCP.
+
+### Apps de Google Workspace (Drive/Docs/Sheets/Slides) — globales
+A diferencia de las apps de trabajo (por-usuario, scratchpad), estas son **globales**
+(todos los usuarios) y viven en `etc/sway/config.d/google-apps.conf` (cargado por
+`include /etc/sway/config.d/*`). Usan **toggle por-app** (`toggle-scratch-app`, flotante
+y centrado, misma tecla muestra/oculta — sin cycling). Launchers en `usr/share/applications/`.
+- `$mod+Shift+d` → Drive · `$mod+Shift+o` → Docs · `$mod+Shift+t` → Sheets · `$mod+Shift+p` → Slides
+  (Sheets quedó en `t` porque `$mod+Shift+s` ya es swaylock).
+- Cuenta por `/u/0/` en la URL = la default del perfil de Brave de cada usuario.
+- Docs/Sheets/Slides comparten host (`docs.google.com`) → se distinguen por el **path**
+  del app_id (`__document`, `__spreadsheets`, `__presentation`).
+> Slides no editaba en Brave (cartel "Tu navegador no permite editar presentaciones"):
+> era la extensión **User-Agent Switcher** (UA no reconocido → solo-lectura). Sin esa
+> extensión (o excluyendo `google.com`), Slides edita normal. No es Shields ni cookies.
+
+### Visor de keybindings y etiquetas `# kb:`
+`$mod+Shift+/` → `~/.config/sway/show-keybindings.sh` lista todos los binds en fuzzel.
+- **NO usa `swaymsg -t get_config`** (no expande includes → se comía los binds de
+  `config.d/*` y `work-pwa.conf`). Lee los archivos directo: config principal +
+  `/etc/sway/config.d/*` + `~/.config/sway/config.d/*.conf`, y expande las variables
+  `set $x` (armado solo desde las líneas `set`).
+- **Etiqueta amigable:** una línea `# kb: <texto>` justo **antes** de un `bindsym` se
+  muestra como descripción en vez del comando crudo (ej. `# kb: Google Drive`). Sin esa
+  línea, muestra el comando. Es seguro: el comentario va en su propia línea, no toca el `exec`.
 
 ---
 

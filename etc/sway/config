@@ -32,6 +32,7 @@ input type:keyboard {
 }
 
 # Tambien se puede alternar el layout con $mod+i
+# kb: Cambiar layout de teclado
 bindsym $mod+i input type:keyboard xkb_switch_layout next
 
 ### Output configuration
@@ -116,21 +117,27 @@ for_window [window_role="dialog"] floating enable
 # Basics:
 #
     # Start a terminal
+    # kb: Terminal
     bindsym $mod+Return exec $term
 
     # Kill focused window
+    # kb: Cerrar ventana
     bindsym $mod+Shift+q kill
 
     # Start your launcher
+    # kb: Lanzador de apps
     bindsym $mod+d exec $menu
 
     # Historial de portapapeles (cliphist + fuzzel)
+    # kb: Portapapeles (historial)
     bindsym $mod+Shift+v exec cliphist list | fuzzel --dmenu | cliphist decode | wl-copy
 
     # Ayuda: muestra todos los keybindings (incluye los custom) en fuzzel
+    # kb: Ver atajos de teclado
     bindsym $mod+Shift+slash exec ~/.config/sway/show-keybindings.sh
 
     # Abrir el navegador
+    # kb: Navegador
     bindsym $mod+Shift+b exec $browser
 
     # NOTA: los binds de apps de trabajo ($mod+Shift+m/w/g → Slack/WhatsApp/Meet)
@@ -147,6 +154,7 @@ for_window [window_role="dialog"] floating enable
     bindsym $mod+Shift+c reload
 
     # Exit sway (logs you out of your Wayland session)
+    # kb: Salir de Sway
     bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 #
 # Moving around:
@@ -231,17 +239,21 @@ for_window [window_role="dialog"] floating enable
     # You can send windows there and get them back later.
 
     # Move the currently focused window to the scratchpad
-    bindsym $mod+Shift+minus move scratchpad
+    # --to-code: engancha a la tecla FISICA (keycode), no al keysym. Necesario
+    # porque con doble layout (us,latam) Shift+minus emite 'underscore', no
+    # 'minus', y sin --to-code el bind de esconder no dispararia nunca.
+    bindsym --to-code $mod+Shift+minus move scratchpad
 
     # Show the next scratchpad window or hide the focused scratchpad window.
     # If there are multiple scratchpad windows, this command cycles through them.
-    bindsym $mod+minus scratchpad show
+    bindsym --to-code $mod+minus scratchpad show
 
 # GNOME Calendar (global, todos los usuarios):
 #   $mod+c muestra/oculta/lanza GNOME Calendar como ventana flotante en el
 #   scratchpad (equivalente a "minimizar a la barra"). Cliente liviano para
 #   Google Calendar vía GNOME Online Accounts.
     for_window [app_id="org.gnome.Calendar"] move scratchpad, scratchpad show, resize set 1000 720, move position center
+    # kb: GNOME Calendar (personal)
     bindsym $mod+c exec /usr/local/bin/toggle-calendar
 # Recordatorios de eventos -> popups de mako (el daemon no arranca solo en Sway).
 exec /usr/lib/evolution-data-server/evolution-alarm-notify
@@ -273,38 +285,54 @@ bindsym $mod+r mode "resize"
 # Utilities:
 #
     # Volumen via pamixer, con feedback visual en wob
+    # kb: Subir volumen
     bindsym --locked XF86AudioRaiseVolume exec pamixer -ui 5 && pamixer --get-volume > $WOBSOCK
+    # kb: Bajar volumen
     bindsym --locked XF86AudioLowerVolume exec pamixer -ud 5 && pamixer --get-volume > $WOBSOCK
+    # kb: Silenciar audio
     bindsym --locked XF86AudioMute exec pamixer -t && ( pamixer --get-mute && echo 0 > $WOBSOCK || pamixer --get-volume > $WOBSOCK )
+    # kb: Silenciar microfono
     bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
 
     # Special keys to control media via playerctl
+    # kb: Reproducir / Pausar
     bindsym --locked XF86AudioPlay exec playerctl play-pause
+    # kb: Reproducir / Pausar
     bindsym --locked XF86AudioPause exec playerctl play-pause
+    # kb: Pista anterior
     bindsym --locked XF86AudioPrev exec playerctl previous
+    # kb: Pista siguiente
     bindsym --locked XF86AudioNext exec playerctl next
+    # kb: Detener reproduccion
     bindsym --locked XF86AudioStop exec playerctl stop
 
     # Brillo via brightnessctl, con feedback visual en wob
+    # kb: Bajar brillo
     bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%- && brightnessctl -m | cut -d, -f4 | tr -d '%' > $WOBSOCK
+    # kb: Subir brillo
     bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+ && brightnessctl -m | cut -d, -f4 | tr -d '%' > $WOBSOCK
 
     # Screenshots con grim + slurp
     # Print: seleccionar region y copiar al portapapeles
+    # kb: Captura de region (al portapapeles)
     bindsym Print exec grim -g "$(slurp)" - | wl-copy
     # Shift+Print: pantalla completa a archivo
+    # kb: Captura de pantalla completa (a archivo)
     bindsym Shift+Print exec grim ~/Pictures/$(date +'%Y%m%d_%H%M%S').png
 
     # Bloquear la sesion con swaylock. Tipear contrasena para volver.
+    # kb: Bloquear pantalla
     bindsym $mod+Shift+s exec swaylock -f -c 000000
 
     # Cerrar una sesion activa (incluye las de otros usuarios/VTs).
     # Muestra todas las sesiones en fuzzel, elegis cual terminar.
+    # kb: Cerrar una sesion (loginctl)
     bindsym $mod+Ctrl+Shift+e exec loginctl list-sessions --no-legend | fuzzel --dmenu --prompt="Cerrar sesion> " | awk '{print $1}' | xargs -r loginctl terminate-session
 
     # Cambiar de sesion: muestra sesiones activas en fuzzel y salta directo.
     # Si no hay otra sesion abierta, ofrece abrir el greeter.
     # La sesion actual queda bloqueada con swaylock (una sola contrasena al volver).
+    # kb: Cambiar de sesion
     bindsym $mod+Ctrl+Shift+s exec sway-session-switch
 
 #

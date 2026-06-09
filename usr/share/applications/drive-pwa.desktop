@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Drive (PWA)
+GenericName=Cloud Storage
+Comment=Google Drive en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://drive.google.com/drive/u/0/
+Icon=folder
+Terminal=false
+Categories=Network;Utility;
+StartupNotify=true

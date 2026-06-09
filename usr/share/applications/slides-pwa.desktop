@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Slides (PWA)
+GenericName=Presentation
+Comment=Google Slides en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://docs.google.com/presentation/u/0/
+Icon=x-office-presentation
+Terminal=false
+Categories=Office;Presentation;
+StartupNotify=true

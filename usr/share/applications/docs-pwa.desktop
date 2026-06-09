@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Google Docs (PWA)
+GenericName=Word Processor
+Comment=Google Docs en Brave, modo app, Wayland nativo
+Exec=/usr/bin/brave --app=https://docs.google.com/document/u/0/
+Icon=x-office-document
+Terminal=false
+Categories=Office;WordProcessor;
+StartupNotify=true

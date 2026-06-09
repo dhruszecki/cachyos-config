@@ -81,6 +81,13 @@ chmod +x /usr/local/bin/toggle-calendar
 install_system usr/local/bin/toggle-scratch-app
 chmod +x /usr/local/bin/toggle-scratch-app
 
+# Apps de Google Workspace (Drive/Docs/Sheets/Slides) como PWAs — GLOBALES.
+# Toggle por-app en scratchpad (config.d, incluido globalmente) + launchers de fuzzel.
+install_system etc/sway/config.d/google-apps.conf
+for app in drive docs sheets slides; do
+    install_system "usr/share/applications/${app}-pwa.desktop"
+done
+
 # ── Archivos de usuario ───────────────────────────────────────────────────────
 # Copia un archivo de home/ al home del usuario y deja la propiedad correcta
 # (se ejecuta como root, así que hay que devolver el ownership a $TARGET_USER).

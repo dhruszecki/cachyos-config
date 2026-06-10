@@ -224,6 +224,19 @@ el modelo viejo de toggle). Launchers en `usr/share/applications/`.
 > era la extensión **User-Agent Switcher** (UA no reconocido → solo-lectura). Sin esa
 > extensión (o excluyendo `google.com`), Slides edita normal. No es Shields ni cookies.
 
+> ⚠️ **LÍMITE Chromium: ctrl+click NO abre el doc en otra ventana PWA.** En la ventana de
+> Docs (sea `--app=URL` o PWA instalada con `--app-id`), **click normal** navega el doc en
+> la *misma* ventana; **ctrl+click** ("abrir en pestaña nueva") se deriva a una ventana/solapa
+> de **Brave normal** (`app_id=brave-browser`) → no cae en `8:Docs`. Causa: una ventana de app
+> no puede hospedar pestañas y **Google Docs no declara modo "tabbed"** en su manifest, así que
+> el flag `--enable-features=DesktopPWAsTabStrip` **no** le da tira de pestañas. Probado con las
+> 3 variantes (`--app=URL`, `--app-id`, `--app-id`+tab-strip): todas igual. **No es config de
+> Sway ni arreglable desde acá.** Convivencia: con ctrl+click, si no hay otra ventana de Brave
+> abierta el doc cae en una ventana nueva en el workspace enfocado (sirve); si la hay, se va de
+> solapa a esa. Para varios docs a la vez, la única vía sería un bind que SIEMPRE lance otra
+> ventana de Docs (mismo app_id → Sway la tabea en `8:Docs`), pero abre en el home (un click
+> extra). Se descartó: quedó el modelo simple (`--app=URL`, una ventana = un doc por navegación).
+
 ### Visor de keybindings y etiquetas `# kb:`
 `$mod+Shift+/` → `~/.config/sway/show-keybindings.sh` lista todos los binds en fuzzel.
 - **NO usa `swaymsg -t get_config`** (no expande includes → se comía los binds de

@@ -3,6 +3,11 @@
 Guía para Claude (y para mí) al modificar la configuración del sistema. Leer esto
 **antes** de tocar cualquier config de Sway/waybar/sistema.
 
+> 📐 **Patrones y gotchas concretos al editar la config de Sway** (cómo diagnosticar el
+> swaynag de "errors in your config file", el `;` en `exec`, binds de workspace sin duplicar,
+> dependencias de binarios como swaybg, reparto por-usuario): **`docs/sway-patterns.md`** —
+> leerlo antes de tocar binds, `exec` o el wallpaper.
+
 Doc humana complementaria del desktop: `~/pad/SWAY-SETUP.md`.
 
 ---

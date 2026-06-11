@@ -8,7 +8,8 @@ info="\e[34m→\e[0m"
 # ── Paquetes ──────────────────────────────────────────────────────────────────
 PACKAGES=(
     # Compositor y sesion (swaynag viene incluido en el paquete sway)
-    sway swaylock swayidle
+    # swaybg: aplica el wallpaper (output * bg ...); sin el, sway tira error al arrancar.
+    sway swaylock swayidle swaybg
 
     # Barra y notificaciones
     waybar mako
@@ -129,6 +130,15 @@ if [ "$TARGET_USER" = "daro-m" ]; then
     for app in slack whatsapp meet calendar gmail; do
         install_user ".local/share/applications/${app}-pwa.desktop"
     done
+fi
+
+# Binds personales (solo daro): recupera $mod+6 (workspace 6 normal). El config
+# principal ya NO define $mod+6..0 para no chocar con los overrides con tag (Meet en
+# daro-m via work-pwa.conf, Google apps en google-apps.conf global). Sin esto daro
+# se quedaría sin workspace 6.
+if [ "$TARGET_USER" = "daro" ]; then
+    echo -e "${info} Binds personales para daro..."
+    install_user .config/sway/config.d/personal.conf
 fi
 
 # Terminal y flags de Brave (compartidos vía symlink → git pull los actualiza)

@@ -1,0 +1,63 @@
+#!/bin/bash
+# config-autoupdate — chequeo diario desatendido de cachyos-config.
+#   Disparado por el systemd user timer (config-autoupdate.timer), corre COMO EL USUARIO:
+#   si hay cambios en origin → pull --ff-only + sudo install.sh + swaymsg reload, y avisa
+#   por mako (notify-send). Si algo falla, manda una notif crítica y corta.
+#
+#   El paso de instalar usa sudo SIN password gracias a /etc/sudoers.d/config-autoupdate
+#   (acotado a este install.sh). Por eso install.sh se invoca con RUTA ABSOLUTA exacta.
+set -uo pipefail
+
+REPO="${CACHYOS_CONFIG_DIR:-$HOME/cachyos-config}"
+INSTALL="$REPO/install.sh"
+
+# ── Env de sesión (el service oneshot no siempre lo trae) ──────────────────────
+: "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"
+export XDG_RUNTIME_DIR
+: "${DBUS_SESSION_BUS_ADDRESS:=unix:path=$XDG_RUNTIME_DIR/bus}"
+export DBUS_SESSION_BUS_ADDRESS
+if [ -z "${SWAYSOCK:-}" ]; then
+    SWAYSOCK="$(ls "$XDG_RUNTIME_DIR"/sway-ipc.*.sock 2>/dev/null | head -1)"
+    export SWAYSOCK
+fi
+
+notify()      { notify-send -a "Config" "$@" 2>/dev/null || true; }
+notify_crit() { notify-send -a "Config" -u critical "$@" 2>/dev/null || true; }
+
+# fail <mensaje-para-la-notif> <detalle-para-el-log>
+fail() {
+    echo "ERROR: ${2:-$1}" >&2
+    notify_crit "⚠ Falló la actualización de config" \
+        "$1"$'\n'"Detalle: journalctl --user -u config-autoupdate"
+    exit 1
+}
+
+[ -d "$REPO/.git" ] || fail "No encuentro el repo en $REPO" "repo ausente"
+
+echo "→ fetch en $REPO"
+git -C "$REPO" fetch --quiet origin || fail "No pude hacer fetch (¿sin red?)" "git fetch falló"
+
+LOCAL="$(git -C "$REPO" rev-parse HEAD)"
+REMOTE="$(git -C "$REPO" rev-parse '@{u}' 2>/dev/null)" || fail "El branch no tiene upstream" "sin @{u}"
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "✔ Sin cambios (HEAD == upstream). Nada que hacer."
+    exit 0
+fi
+
+# Resumen ANTES del pull (para el cuerpo de la notif de éxito).
+SUMMARY="$(git -C "$REPO" log --oneline --no-decorate HEAD..'@{u}')"
+COUNT="$(git -C "$REPO" rev-list --count HEAD..'@{u}')"
+
+echo "→ pull --ff-only ($COUNT commit/s nuevos)"
+git -C "$REPO" pull --ff-only --quiet \
+    || fail "git pull falló (divergencia o cambios locales). Resolvé a mano." "pull --ff-only falló"
+
+echo "→ install.sh (sudo)"
+sudo "$INSTALL" || fail "install.sh falló al deployar." "install.sh exit≠0"
+
+echo "→ swaymsg reload"
+swaymsg reload || fail "Cambios instalados pero 'swaymsg reload' falló." "swaymsg reload falló"
+
+echo "✔ Config actualizada ($COUNT commit/s)."
+notify "Config actualizada ✓" "$COUNT commit/s aplicados:"$'\n'"$SUMMARY"

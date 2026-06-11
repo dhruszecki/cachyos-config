@@ -1,0 +1,10 @@
+[Unit]
+Description=Chequeo diario de cachyos-config
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target

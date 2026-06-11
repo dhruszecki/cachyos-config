@@ -83,6 +83,18 @@ install_system usr/local/bin/toggle-scratch-app
 chmod +x /usr/local/bin/toggle-scratch-app
 install_system usr/local/bin/focus-or-launch-app
 chmod +x /usr/local/bin/focus-or-launch-app
+install_system usr/local/bin/config-autoupdate
+chmod +x /usr/local/bin/config-autoupdate
+
+# Auto-actualización diaria: NOPASSWD acotado para que el timer corra install.sh sin prompt.
+# Validar la sintaxis ANTES de instalar (un sudoers roto deja la máquina sin sudo).
+echo -e "${info} Instalando sudoers de auto-update..."
+if visudo -cf "$REPO_DIR/etc/sudoers.d/config-autoupdate" >/dev/null; then
+    install -m 0440 -o root -g root "$REPO_DIR/etc/sudoers.d/config-autoupdate" /etc/sudoers.d/config-autoupdate
+    echo -e "${ok} /etc/sudoers.d/config-autoupdate"
+else
+    echo "  ⚠ sudoers inválido, NO se instaló /etc/sudoers.d/config-autoupdate"
+fi
 
 # Apps de Google Workspace (Drive/Docs/Sheets/Slides) como PWAs — GLOBALES.
 # Toggle por-app en scratchpad (config.d, incluido globalmente) + launchers de fuzzel.
@@ -159,6 +171,20 @@ for ext in marp-team.marp-vscode yzhang.markdown-all-in-one; do
         echo -e "  (no se pudo instalar $ext automáticamente; instalala desde la UI)"
     fi
 done
+
+# Auto-actualización diaria (systemd user timer) — corre como el usuario para que la
+# notificación llegue a su mako. El service llama a config-autoupdate (sudo NOPASSWD arriba).
+echo -e "${info} Configurando timer de auto-update para $TARGET_USER..."
+install_user .config/systemd/user/config-autoupdate.service
+install_user .config/systemd/user/config-autoupdate.timer
+RUID="$(id -u "$TARGET_USER")"
+if sudo -u "$TARGET_USER" XDG_RUNTIME_DIR="/run/user/$RUID" systemctl --user daemon-reload 2>/dev/null; then
+    sudo -u "$TARGET_USER" XDG_RUNTIME_DIR="/run/user/$RUID" systemctl --user enable --now config-autoupdate.timer
+    echo -e "${ok} config-autoupdate.timer habilitado (diario)."
+else
+    echo "  (no pude habilitar el timer ahora; logueado en tu sesión corré:"
+    echo "   systemctl --user enable --now config-autoupdate.timer)"
+fi
 
 echo ""
 echo -e "${ok} Todo listo. Iniciá sway o recargá con \$mod+Shift+c."

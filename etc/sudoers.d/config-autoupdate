@@ -1,0 +1,6 @@
+# Permite a config-autoupdate (timer de systemd, corre como el usuario) re-aplicar la
+# config sin pedir password. Acotado al install.sh de cada clone (~/cachyos-config).
+# No es escalada nueva: estos usuarios ya tienen sudo interactivo; esto solo saca el prompt
+# para el job desatendido. Si movés el repo de ~/cachyos-config, actualizá el path acá.
+daro    ALL=(root) NOPASSWD: /home/daro/cachyos-config/install.sh
+daro-m  ALL=(root) NOPASSWD: /home/daro-m/cachyos-config/install.sh

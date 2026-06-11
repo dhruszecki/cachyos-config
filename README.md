@@ -8,13 +8,18 @@ Configuración del sistema para CachyOS con sway. Diseñada para ser compartida 
 cachyos-config/
 ├── etc/
 │   ├── sway/config                  → /etc/sway/config
+│   ├── sudoers.d/config-autoupdate  → /etc/sudoers.d/config-autoupdate
 │   └── xdg/waybar/
 │       ├── config.jsonc             → /etc/xdg/waybar/config.jsonc
 │       └── style.css                → /etc/xdg/waybar/style.css
 ├── usr/local/bin/
 │   ├── sway-session-switch          → /usr/local/bin/sway-session-switch
-│   └── cachyos-sync                 → /usr/local/bin/cachyos-sync
+│   ├── cachyos-sync                 → /usr/local/bin/cachyos-sync       (sync manual)
+│   └── config-autoupdate            → /usr/local/bin/config-autoupdate  (sync diario automático)
 ├── bootstrap.sh                     (setup compartido /opt + grupo + /etc/skel)
+├── home/.config/systemd/user/
+│   ├── config-autoupdate.service    → ~/.config/systemd/user/config-autoupdate.service
+│   └── config-autoupdate.timer      → ~/.config/systemd/user/config-autoupdate.timer
 ├── home/.config/sway/
 │   └── show-keybindings.sh          → ~/.config/sway/show-keybindings.sh
 ├── home/.config/Code - OSS/User/
@@ -72,6 +77,35 @@ cachyos-sync
 ```
 
 Hace `git pull` del clon en `/opt` (los symlinks de Code OSS se actualizan solos) y re-aplica las configs de sistema vía `sudo install.sh`.
+
+### Auto-actualización diaria (automática)
+
+Además del `cachyos-sync` manual, hay un **timer de systemd** que una vez por día chequea si hay cambios en el repo, y **si los hay** los baja, los instala, recarga Sway y **avisa por notificación** (mako). Si algo falla, manda una notificación crítica para que intervengas.
+
+Lo instala y habilita el propio `install.sh` (no hay que hacer nada extra). Piezas:
+
+- `usr/local/bin/config-autoupdate` — el worker. Corre **como tu usuario** (no root) para que la notificación llegue a tu mako. Flujo: `git fetch` → si no hay cambios sale en silencio → si los hay: `pull --ff-only` + `sudo install.sh` + `swaymsg reload` + notificación con el changelog.
+- `etc/sudoers.d/config-autoupdate` — regla `NOPASSWD` **acotada** al `install.sh` del repo, para que el job desatendido pueda instalar sin pedir contraseña. No es escalada de privilegios (ya tenés `sudo` interactivo); sólo saca el prompt.
+- `home/.config/systemd/user/config-autoupdate.{service,timer}` — `OnCalendar=daily`, `Persistent=true` (recupera el chequeo si la máquina estaba apagada) y un jitter aleatorio de 15 min.
+
+> El service corre **en tu sesión**: la notificación necesita una sesión con mako activa. Si no estás logueado el chequeo no corre, pero `Persistent=true` lo dispara tras el próximo login. Por eso **no** se usa `enable-linger`.
+
+**Comandos útiles:**
+
+```bash
+# Ver cuándo es el próximo chequeo
+systemctl --user list-timers | grep config-autoupdate
+
+# Forzar un chequeo ahora (no espera al horario)
+systemctl --user start config-autoupdate.service
+
+# Ver qué hizo / por qué falló
+journalctl --user -u config-autoupdate -e
+
+# Pausar / reanudar la auto-actualización
+systemctl --user disable --now config-autoupdate.timer
+systemctl --user enable  --now config-autoupdate.timer
+```
 
 ## Sway
 

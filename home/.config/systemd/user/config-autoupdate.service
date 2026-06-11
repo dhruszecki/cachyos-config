@@ -1,0 +1,8 @@
+[Unit]
+Description=Actualiza cachyos-config desde git y lo re-aplica
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/config-autoupdate

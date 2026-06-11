@@ -262,11 +262,57 @@ el modelo viejo de toggle). Launchers en `usr/share/applications/`.
 
 ---
 
-## 7. Checklist al terminar un cambio
+## 7. Auto-actualización diaria (systemd user timer)
+
+Mecanismo desatendido para mantener la config al día sin acordarse de correr `cachyos-sync`.
+Una vez por día chequea `origin`, y **si hay cambios** los baja, los instala, recarga Sway y
+**avisa por mako**. Si algo falla, manda una notificación crítica y corta (no deja a medias).
+
+Piezas (todas en el repo):
+- `usr/local/bin/config-autoupdate` (global): el worker. Corre **como el usuario** (no root)
+  para que `notify-send`/mako funcionen. Flujo: `git fetch` → si `HEAD == @{u}` sale silencioso
+  → si hay commits nuevos: `pull --ff-only` + `sudo install.sh` + `swaymsg reload` + notif de
+  éxito con el `git log` corto. Cada paso que falla → `notify-send -u critical` + `exit 1`.
+- `etc/sudoers.d/config-autoupdate` (global, 0440): NOPASSWD **acotado** al `install.sh` de
+  cada clone (`~/cachyos-config`). Es lo que deja al timer instalar sin prompt. **No es
+  escalada** (estos usuarios ya tienen sudo); si movés el repo de `~/cachyos-config` hay que
+  actualizar el path acá. `install.sh` valida con `visudo -cf` antes de copiar.
+- `home/.config/systemd/user/config-autoupdate.{service,timer}` (por-usuario): `OnCalendar=daily`,
+  `Persistent=true` (recupera disparos perdidos si la máquina estaba apagada),
+  `RandomizedDelaySec=15min`. `install.sh` los copia y hace `systemctl --user enable --now`.
+
+> ⚠️ El service corre **en tu sesión**: la notif necesita una sesión activa con mako. Por eso
+> **no** se usa `enable-linger`; si no estás logueado el chequeo no corre, pero `Persistent=true`
+> lo dispara tras el próximo login. El script invoca `install.sh` con **ruta absoluta** porque
+> el sudoers matchea por path exacto (si no, sudo pediría password y el job fallaría).
+
+Operación / debug:
+```bash
+systemctl --user list-timers | grep config-autoupdate   # próximo disparo
+systemctl --user start config-autoupdate.service         # forzar un chequeo ahora
+journalctl --user -u config-autoupdate -e                # ver qué pasó (stdout/stderr)
+```
+Diferencia con `cachyos-sync`: ese es el equivalente **manual/interactivo** (pide sudo);
+`config-autoupdate` es la versión automática diaria con notificación.
+
+---
+
+## 8. Notificaciones
+
+- Waybar **no** muestra notificaciones de apps (es una barra). El daemon es **mako**.
+- Recordatorios de calendario: `evolution-alarm-notify` → libnotify → **popup de mako**.
+- El auto-update diario (sección 7) también avisa por mako (`notify-send`).
+- mako no tiene contador en waybar (eso sería swaync). 
+
+---
+
+## 9. Checklist al terminar un cambio
 - [ ] Editado en el **repo**, no en `/etc`.
 - [ ] `sway -C -c etc/sway/config` sin errores.
 - [ ] `bash -n install.sh` si tocaste el instalador.
 - [ ] Si agregaste un archivo nuevo en `etc/`/`usr/`, agregá su `install_system ...` en `install.sh`.
+- [ ] Si agregaste una unit de systemd (`home/.config/systemd/user/`) o un sudoers (`etc/sudoers.d/`),
+      agregá su `install_user`/`install_system` + el `enable`/`visudo -cf` en `install.sh`.
 - [ ] Deploy (`sudo ./install.sh`) + `swaymsg reload`.
 - [ ] Verificado contra la config **viva** (`swaymsg -t get_config`).
 - [ ] `git add -A && git commit && git push`.
